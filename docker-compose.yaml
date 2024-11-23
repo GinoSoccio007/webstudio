@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   webstudio:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/webstudio-is/webstudio-builder:latest
     container_name: webstudiosss
     environment:
       - NODE_ENV=production

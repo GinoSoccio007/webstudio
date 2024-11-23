@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  webstudio:
+    build: .
+    container_name: webstudiosss
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - AUTH_SECRET=${AUTH_SECRET}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

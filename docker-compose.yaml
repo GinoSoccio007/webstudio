@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   webstudio:
-    image: ghcr.io/webstudio-is/webstudio-builder:latest
+    image: webstudiodev/webstudio:latest
     container_name: webstudiosss
     environment:
       - NODE_ENV=production

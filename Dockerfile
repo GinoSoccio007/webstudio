@@ -17,6 +17,10 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
 COPY packages/ ./packages/
+COPY apps/ ./apps/
+
+# Debug: List contents
+RUN ls -la
 
 # Install dependencies with build dependencies
 RUN pnpm install --frozen-lockfile
@@ -24,8 +28,12 @@ RUN pnpm install --frozen-lockfile
 # Copy the rest of the application
 COPY . .
 
-# Build the application - using the specific builder script
-RUN pnpm run build
+# Debug: Show what we're about to build
+RUN pnpm ls --recursive
+RUN pwd && ls -la
+
+# Try to build just the builder app
+RUN cd apps/builder && pnpm build
 
 # Expose the port
 EXPOSE 3000

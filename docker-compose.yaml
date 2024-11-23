@@ -1,14 +1,45 @@
-version: '3.8'
+# Build stage
+FROM node:20 as builder
 
-services:
-  webstudio:
-    image: webstudiodev/webstudio:latest
-    container_name: webstudiosss
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - AUTH_SECRET=${AUTH_SECRET}
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy only the builder app and necessary files
+COPY apps/builder/package.json apps/builder/
+COPY package.json pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source files
+COPY apps/builder apps/builder/
+COPY packages packages/
+COPY patches patches/
+
+# Build the app
+RUN cd apps/builder && pnpm build
+
+# Production stage
+FROM node:20-slim
+
+WORKDIR /app
+
+# Copy built application
+COPY --from=builder /app/apps/builder/dist ./dist
+COPY --from=builder /app/apps/builder/node_modules ./node_modules
+COPY --from=builder /app/apps/builder/package.json ./
+
+EXPOSE 3000
+
+CMD ["node", "dist/server.js"]

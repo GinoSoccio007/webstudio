@@ -1,8 +1,8 @@
-FROM node:20-slim
+FROM node:20
 
 WORKDIR /app
 
-# Install build essentials and git for native dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -13,33 +13,19 @@ RUN apt-get update && apt-get install -y \
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy package files and patches first
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY patches/ ./patches/
-COPY packages/ ./packages/
-COPY apps/ ./apps/
-
-# Debug: List contents
-RUN ls -la
-
-# Install dependencies with build dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy the rest of the application
+# Copy the entire project
 COPY . .
 
-# Debug: Show what we're about to build
-RUN pnpm ls --recursive
-RUN pwd && ls -la
+# Install all dependencies
+RUN pnpm install
 
-# Try to build just the builder app
-RUN cd apps/builder && pnpm build
+# Add verbose logging to see what's happening
+RUN pnpm exec ls -la
+RUN pnpm --filter builder exec ls -la
 
-# Expose the port
+# Try to build with more verbosity
+RUN pnpm --filter builder build --verbose
+
 EXPOSE 3000
 
-# Set the environment to production
-ENV NODE_ENV=production
-
-# Start the application using the builder
 CMD ["pnpm", "--filter", "builder", "start"]

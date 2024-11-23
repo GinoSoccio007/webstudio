@@ -5,7 +5,7 @@ services:
     build: .
     container_name: webstudiosss
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - DATABASE_URL=${DATABASE_URL}
       - SESSION_SECRET=${SESSION_SECRET}
       - AUTH_SECRET=${AUTH_SECRET}
